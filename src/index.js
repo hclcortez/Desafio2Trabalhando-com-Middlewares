@@ -9,20 +9,63 @@ app.use(cors());
 
 const users = [];
 
-function checksExistsUserAccount(request, response, next) {
-  // Complete aqui
+function checksExistsuserccount(request, response, next) {
+  const { username } = request.headers
+
+  const user = users.find(user => user.username === username)
+
+  if (!user) {
+    return response.status(404)
+  }
+
+  request.user = user
+  return next()
 }
 
-function checksCreateTodosUserAvailability(request, response, next) {
-  // Complete aqui
+const haveTen = todos => todos.length >= 10;
+
+function checksCreateTodosuservailability(request, response, next) {
+  const { user } = request
+
+  
+  
+
 }
 
 function checksTodoExists(request, response, next) {
-  // Complete aqui
+  const { username } = request.headers
+  const { id } = request.params
+
+  const user = users.find(user => user.username === username)
+
+  if(!user){
+    return response.status(404)
+  }
+
+  if (user && validate(id)) {
+    const todo = user.todos.find(todo => todo.id === id)
+
+    request.todo = todo;
+    request.user = user;
+
+    return next()
+
+  }
+
+
+
 }
 
 function findUserById(request, response, next) {
-  // Complete aqui
+  const { id } = request.params
+
+  const user = users.find(user => user.id === id)
+
+  if (!user) {
+    return response.status(404)
+  }
+  request.user = user
+  return next()
 }
 
 app.post('/users', (request, response) => {
@@ -65,13 +108,13 @@ app.patch('/users/:id/pro', findUserById, (request, response) => {
   return response.json(user);
 });
 
-app.get('/todos', checksExistsUserAccount, (request, response) => {
+app.get('/todos', checksExistsuserccount, (request, response) => {
   const { user } = request;
 
   return response.json(user.todos);
 });
 
-app.post('/todos', checksExistsUserAccount, checksCreateTodosUserAvailability, (request, response) => {
+app.post('/todos', checksExistsuserccount, checksCreateTodosuservailability, (request, response) => {
   const { title, deadline } = request.body;
   const { user } = request;
 
@@ -106,7 +149,7 @@ app.patch('/todos/:id/done', checksTodoExists, (request, response) => {
   return response.json(todo);
 });
 
-app.delete('/todos/:id', checksExistsUserAccount, checksTodoExists, (request, response) => {
+app.delete('/todos/:id', checksExistsuserccount, checksTodoExists, (request, response) => {
   const { user, todo } = request;
 
   const todoIndex = user.todos.indexOf(todo);
@@ -123,8 +166,8 @@ app.delete('/todos/:id', checksExistsUserAccount, checksTodoExists, (request, re
 module.exports = {
   app,
   users,
-  checksExistsUserAccount,
-  checksCreateTodosUserAvailability,
+  checksExistsuserccount,
+  checksCreateTodosuservailability,
   checksTodoExists,
   findUserById
 };
